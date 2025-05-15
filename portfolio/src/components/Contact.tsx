@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Send, Mail, MapPin, Phone } from 'lucide-react';
+import emailjs from 'emailjs-com';
+
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +22,7 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!formData.name || !formData.email || !formData.message) {
       setSubmitStatus({
@@ -30,30 +32,39 @@ const Contact = () => {
       return;
     }
 
-    // Simulate form submission
     setIsSubmitting(true);
-    
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitStatus({
-        success: true,
-        message: 'Message sent successfully! I\'ll get back to you soon.'
-      });
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
 
-      // Clear status after 5 seconds
-      setTimeout(() => {
-        setSubmitStatus(null);
-      }, 5000);
-    }, 1500);
-  };
+    emailjs
+      .send(
+        'service_6nu45i7',         
+        'template_ujte3y7',        
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          from_message: formData.message,
+          from_time: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+        },
+        'o5XqmEfjCceEu_RVA' 
+      )
+      .then(() => {
+        setIsSubmitting(false);
+        setSubmitStatus({
+          success: true,
+          message: "Message sent successfully! I'll get back to you soon."
+        });
+        setFormData({ name: '', email: '', message: '' });
 
+        setTimeout(() => setSubmitStatus(null), 5000);
+      })
+      .catch((error) => {
+        console.error('EmailJS Error:', error);
+        setIsSubmitting(false);
+        setSubmitStatus({
+          success: false,
+          message: 'Something went wrong. Please try again later.'
+        });
+      });
+  }
   return (
     <section id="contact" className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black">
       <div className="container mx-auto max-w-6xl">
@@ -64,7 +75,7 @@ const Contact = () => {
             Have a project in mind or want to chat? Feel free to reach out. I'm always open to discussing new projects and opportunities.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2 space-y-8">
             <div>
@@ -73,7 +84,7 @@ const Contact = () => {
                 Let's turn your ideas into reality. Drop me a message, and I'll get back to you as soon as possible.
               </p>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-start">
                 <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400 mr-4">
@@ -86,7 +97,7 @@ const Contact = () => {
                   </a>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400 mr-4">
                   <MapPin size={20} />
@@ -96,7 +107,7 @@ const Contact = () => {
                   <p className="text-gray-300">Itaquaquecetuba, São Paulo</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start">
                 <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400 mr-4">
                   <Phone size={20} />
@@ -109,7 +120,7 @@ const Contact = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex space-x-4 mt-6">
               <a href="https://github.com/RegulusRK" target="_blank" rel="noopener noreferrer" className="p-3 bg-gray-800 hover:bg-gray-700 rounded-full transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
@@ -125,14 +136,14 @@ const Contact = () => {
               </a>
             </div>
           </div>
-          
+
           <div className="lg:col-span-3">
             <form onSubmit={handleSubmit} className="bg-gray-800/30 p-8 rounded-lg">
               <div className="mb-6">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
                   Your Name
                 </label>
-                <input 
+                <input
                   type="text"
                   id="name"
                   name="name"
@@ -142,12 +153,12 @@ const Contact = () => {
                   placeholder="John Doe"
                 />
               </div>
-              
+
               <div className="mb-6">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   Your Email
                 </label>
-                <input 
+                <input
                   type="email"
                   id="email"
                   name="email"
@@ -157,12 +168,12 @@ const Contact = () => {
                   placeholder="john@example.com"
                 />
               </div>
-              
+
               <div className="mb-6">
                 <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-2">
                   Your Message
                 </label>
-                <textarea 
+                <textarea
                   id="message"
                   name="message"
                   value={formData.message}
@@ -172,15 +183,14 @@ const Contact = () => {
                   placeholder="I'd like to talk about..."
                 ></textarea>
               </div>
-              
-              <button 
+
+              <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`flex items-center justify-center w-full py-3 px-4 rounded-lg text-white font-medium transition-colors ${
-                  isSubmitting 
-                    ? 'bg-gray-600 cursor-not-allowed' 
+                className={`flex items-center justify-center w-full py-3 px-4 rounded-lg text-white font-medium transition-colors ${isSubmitting
+                    ? 'bg-gray-600 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                  }`}
               >
                 {isSubmitting ? (
                   <>
@@ -197,11 +207,10 @@ const Contact = () => {
                   </>
                 )}
               </button>
-              
+
               {submitStatus && (
-                <div className={`mt-4 p-3 rounded-lg ${
-                  submitStatus.success ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300'
-                }`}>
+                <div className={`mt-4 p-3 rounded-lg ${submitStatus.success ? 'bg-green-900/30 text-green-300' : 'bg-red-900/30 text-red-300'
+                  }`}>
                   {submitStatus.message}
                 </div>
               )}
